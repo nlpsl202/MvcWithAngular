@@ -21,10 +21,12 @@ namespace CMS.BLL.Services
             db = new GenericRepository<Customers>();
         }
 
-        public List<CustomerViewModel> Get()
+        public List<CustomerViewModel> Get(int CurrPage, int PageSize, out int TotalRow)
         {
-            var DbResult = db.Get().ToList(); ;
-            var config = new MapperConfiguration(cfg => {
+            TotalRow = db.Get().ToList().Count();
+            var DbResult = db.Get().ToList().Skip((CurrPage - 1) * PageSize).Take(PageSize).ToList();
+            var config = new MapperConfiguration(cfg =>
+            {
                 cfg.CreateMap<Customers, CustomerViewModel>();
             });
 

@@ -19,12 +19,14 @@ namespace CMS.Web.API
 
         // GET: api/Empty
         [HttpGet]
-        public HttpResponseMessage Customers()
+        public HttpResponseMessage Customers(int CurrPage,int PageSize)
         {
             try
             {
-                var datas = service.Get();
-                return Request.CreateResponse(HttpStatusCode.OK, datas);
+                int TotalRow = 0;
+                var datas = service.Get(CurrPage,PageSize,out TotalRow);
+                var Rvl = new { Total = TotalRow, Data = datas };
+                return Request.CreateResponse(HttpStatusCode.OK, Rvl);
             }
             catch(Exception ex)
             {

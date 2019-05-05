@@ -5,34 +5,65 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script>
-    var app = angular.module('myApp', []);
+    var app = angular.module('CustApp', ['ui.bootstrap']);
     app.controller('CustCtrl', function ($scope, $http) {
-        $scope.IsLoad = true;
-        $http({
-            method: 'GET',
-            url: '/api/Customer'
-        }).then(function (response) {
-            $scope.Customers = response.data;
-            $scope.IsLoad = false;
-        }, function (error) {
-            $scope.error = "取得資料錯誤！";
-        });
+        $scope.IsLoad = true;//預設讀取中
+
+        //分頁參數
+        $scope.totalRecords = 0;//總共筆數
+        $scope.pageSize = 10;//每頁筆數
+        $scope.currentPage = 1;//初始值，第一頁
+
+        //當有分頁
+        $scope.pageChanged = function () {
+            $scope.IsLoad = true;
+            GetData();
+        }
+
+        var GetData = function () {
+            //取得客戶資料
+            $http({
+                method: 'GET',
+                url: '/api/Customer',
+                params: { CurrPage: $scope.currentPage, PageSize: $scope.pageSize }
+            }).then(function (response) {
+                $scope.Customers = response.data.Data;
+                $scope.totalRecords = response.data.Total;
+                $scope.IsLoad = false;
+            }, function (error) {
+                $scope.error = "取得資料錯誤！";
+                $scope.IsLoad = false;
+            });
+        }
+
+        GetData();
     });
 </script>
 
-<div ng-app="myApp" ng-controller="CustCtrl">
+<div ng-app="CustApp" ng-controller="CustCtrl">
     <h3>客戶資料</h3>
     <div ng-show="IsLoad" style="text-align:center;">
         <span class="fa fa-spinner fa-spin fa-3x"></span>
     </div>
 
-    <table class="table table-bordered" style="margin-top:20px;">
+    <table class="table table-bordered">
         <tr ng-repeat="Cust in Customers">
             <td>{{Cust.CustomerID}}</td>
             <td>{{Cust.CompanyName}}</td>
             <td>{{Cust.ContactName}}</td>
         </tr>
     </table>
+    <pre>目前頁數: {{currentPage}} 總筆數: {{totalRecords}}</pre>
+    <div uib-pagination boundary-links="true" 
+                total-items="totalRecords" 
+                ng-model="currentPage" 
+                class="pagination-sm" 
+                previous-text="上一頁" 
+                next-text="下一頁" 
+                first-text="first" 
+                last-text="last" 
+                ng-change="pageChanged()">
+    </div>
     <div style="color:red;">
         {{error}}
     </div>
