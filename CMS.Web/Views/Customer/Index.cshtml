@@ -1,0 +1,42 @@
+﻿@model IList<CMS.Domain.ViewModels.CustomerViewModel>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var app = angular.module('myApp', []);
+    app.controller('CustCtrl', function ($scope, $http) {
+        $scope.IsLoad = true;
+        $http({
+            method: 'GET',
+            url: '/api/Customer'
+        }).then(function (response) {
+            $scope.Customers = response.data;
+            $scope.IsLoad = false;
+        }, function (error) {
+            $scope.error = "取得資料錯誤！";
+        });
+    });
+</script>
+
+<div ng-app="myApp" ng-controller="CustCtrl">
+    <h3>客戶資料</h3>
+    <div ng-show="IsLoad" style="text-align:center;">
+        <span class="fa fa-spinner fa-spin fa-3x"></span>
+    </div>
+
+    <table class="table table-bordered" style="margin-top:20px;">
+        <tr ng-repeat="Cust in Customers">
+            <td>{{Cust.CustomerID}}</td>
+            <td>{{Cust.CompanyName}}</td>
+            <td>{{Cust.ContactName}}</td>
+        </tr>
+    </table>
+    <div style="color:red;">
+        {{error}}
+    </div>
+</div>
+
+
+
